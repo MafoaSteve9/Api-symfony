@@ -2,20 +2,29 @@
 
 namespace App\Controller;
 
-use App\Entity\Product;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\CreateProductService;
+use App\Service\ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+
 
 final class ProductController extends AbstractController
 {
-    #[Route('api/products', name: 'app_product', methods: ['GET'])]
-    public function index(EntityManagerInterface $em, SerializerInterface $serializer): JsonResponse
+    #[Route('api/products', name: 'app_product_list', methods: ['GET'])]
+    public function index(ProductService $productService): JsonResponse
     {   
-        $products = $em->getRepository(Product::class)->findAll();
-        $json = $serializer->serialize($products, 'json', ['groups' => 'product:read']);
+        $json = $productService->getAllProductsAsJson();
         return new JsonResponse($json, 200, [], true);
     }
+
+    #[Route('api/products', name: 'app_product_create', methods: ['POST'])]
+    public function  create(CreateProductService  $createProductService): JsonResponse
+    {
+        $json = $createProductService->createProduct();
+        return new JsonResponse($json, 201, [], true);
+    }
+
+
+    
 }
