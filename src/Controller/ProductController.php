@@ -25,6 +25,12 @@ final class ProductController extends AbstractController
         $products = $this->productService->getAllProducts();
         return $this->json($products, 200, [], ['groups' => 'product:read']);
     }
+    #[Route('/api/products/{name}', name: 'app_product_list', methods: ['GET'])]
+    public function getName($name): JsonResponse
+    {
+        $products = $this->productService->getProductByName($name);
+        return $this->json($products, 200, [], ['groups' => 'product:read']);
+    }
 
     #[Route('/api/products', name: 'app_product_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
