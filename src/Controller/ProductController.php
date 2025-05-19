@@ -25,6 +25,24 @@ final class ProductController extends AbstractController
         $products = $this->productService->getAllProducts();
         return $this->json($products, 200, [], ['groups' => 'product:read']);
     }
+    
+    #[Route('/api/products/{name}', name: 'app_product_by_name', methods: ['GET'])]
+    public function getName(string $name): JsonResponse
+    {
+    if (!$name) {
+        return $this->json(['error' => 'Paramètre "name" requis'], 400);
+    }
+
+    $product = $this->productService->getProductByName($name);
+    // dd($product);
+
+    if (!$product) {
+        return $this->json(['error' => 'Produit non trouvé'], 404);
+    }
+
+    return $this->json($product, 200, [], ['groups' => 'product:read']);
+    }
+
 
     #[Route('/api/products', name: 'app_product_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
@@ -34,7 +52,7 @@ final class ProductController extends AbstractController
         if (is_array($result) && isset($result['errors'])) {
         return $this->json(['errors' => $result['errors']], 400);
     }
-
+        
         return $this->json($result, 201, [], ['groups' => 'product:read']);
     }
 
