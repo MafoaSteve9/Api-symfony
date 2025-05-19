@@ -26,9 +26,9 @@ class ProductService
     {
         return $this->em->getRepository(Product::class)->findAll();
     }
-      public function getProductByName($name)
+      public function getProductByName($name): ?Product
     {
-        return $this->em->getRepository(Product::class)->findBy(['name' => $name]);
+        return $this->em->getRepository(Product::class)->findOneBy(['name' => $name]);
     }
 
     public function createProduct(string $jsonData): Product|array
