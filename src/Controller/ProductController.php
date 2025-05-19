@@ -27,9 +27,8 @@ final class ProductController extends AbstractController
     }
     
     #[Route('/api/products/{name}', name: 'app_product_by_name', methods: ['GET'])]
-    public function getName(string $name, Request $request): JsonResponse
+    public function getName(string $name): JsonResponse
     {
-        $name = $request->query->get('name');
     if (!$name) {
         return $this->json(['error' => 'Paramètre "name" requis'], 400);
     }
@@ -53,7 +52,7 @@ final class ProductController extends AbstractController
         if (is_array($result) && isset($result['errors'])) {
         return $this->json(['errors' => $result['errors']], 400);
     }
-
+        
         return $this->json($result, 201, [], ['groups' => 'product:read']);
     }
 
