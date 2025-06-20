@@ -15,11 +15,10 @@ final class ProductServiceTest extends WebTestCase
 {
      public function testCreateProductReturnsProductIfValid()
     {
-        // Arrange
-        $jsonData = '{"name": "Produit test"}';
+        $jsonData = '{"name": "Produit random"}';
 
         $product = new Product();
-        $product->setName("Produit test");
+        $product->setName("Produit random");
 
         /** @var SerializerSerializerInterface&\PHPUnit\Framework\MockObject\MockObject $serializer */
         $serializer = $this->createMock(SerializerSerializerInterface::class);
@@ -39,11 +38,10 @@ final class ProductServiceTest extends WebTestCase
 
         $service = new ProductService($em, $serializer, $validator, $repository);
 
-        // Act
         $result = $service->createProduct($jsonData);
 
         // Assert
         $this->assertInstanceOf(Product::class, $result);
-        $this->assertEquals("Produit test", $result->getName());
+        $this->assertEquals("Produit random", $result->getName());
     }
 }
