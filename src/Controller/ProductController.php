@@ -34,7 +34,6 @@ final class ProductController extends AbstractController
     }
 
     $product = $this->productService->getProductByName($name);
-    // dd($product);
 
     if (!$product) {
         return $this->json(['error' => 'Produit non trouvé'], 404);
