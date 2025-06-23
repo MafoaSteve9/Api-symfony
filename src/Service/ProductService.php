@@ -2,9 +2,10 @@
 
 namespace App\Service;
 
+use App\DTO\ProductDTO;
 use App\Entity\Product;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -14,17 +15,19 @@ class ProductService
     private EntityManagerInterface $em;
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
+    private ProductRepository $productRepository;
 
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer, ValidatorInterface $validator)
+    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer, ValidatorInterface $validator, ProductRepository $productRepository)
     {
         $this->em = $em;
         $this->serializer = $serializer;
         $this->validator = $validator;
+        $this->productRepository = $productRepository;
     }
 
     public function getAllProducts(): array
     {
-        return $this->em->getRepository(Product::class)->findAll();
+        return $this->productRepository->findAll();
     }
       public function getProductByName($name): ?Product
     {
@@ -33,8 +36,8 @@ class ProductService
 
     public function createProduct(string $jsonData): Product|array
     {
-        $product = $this->serializer->deserialize($jsonData, Product::class, 'json', ['groups' => 'product:write']);
-        $errors = $this->validator->validate($product);
+        $dto = $this->serializer->deserialize($jsonData, ProductDTO::class, 'json', ['disable_type_enforcement' => true], ['groups' => 'product:write']);
+        $errors = $this->validator->validate($dto);
 
     if (count($errors) > 0) {
         $errorMessages = [];
@@ -43,6 +46,12 @@ class ProductService
         }
         return ['errors' => $errorMessages];
     }
+
+        $product = new Product();
+        $product->setName($dto->name);
+        $product->setPrice($dto->price);
+        $product->setCategory($dto->category);
+        $product->setStock($dto->stock);
 
     $this->em->persist($product);
     $this->em->flush();
