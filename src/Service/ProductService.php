@@ -49,9 +49,38 @@ class ProductService
 
         $product = new Product();
         $product->setName($dto->name);
-        $product->setPrice($dto->price);
+        $product->setPrice((float) $dto->price);    
+        $product->setPhoto($dto->photo);
         $product->setCategory($dto->category);
         $product->setStock($dto->stock);
+
+        
+    // --- Gestion de la photo ---
+    if ($dto->photo) {
+        // Décoder base64 (format data:image/png;base64,...)
+        if (preg_match('/^data:image\/(\w+);base64,/', $dto->photo, $type)) {
+            $data = substr($dto->photo, strpos($dto->photo, ',') + 1);
+            $data = base64_decode($data);
+
+            if ($data === false) {
+                return ['errors' => ['Image invalide'], 'status' => 400];
+            }
+
+            $extension = $type[1]; // png, jpeg, gif, ...
+            $fileName = uniqid() . '.' . $extension;
+            $filePath = __DIR__ . '/../../public/uploads/' . $fileName;
+
+            // Sauvegarde sur le disque
+            file_put_contents($filePath, $data);
+
+            // Enregistre chemin relatif dans la base
+            $product->setPhoto('/uploads/' . $fileName);
+        } else {
+            return ['errors' => ['Format d\'image non supporté'], 'status' => 400];
+        }
+    } else {
+        $product->setPhoto(null);
+    }
 
     $this->em->persist($product);
     $this->em->flush();
